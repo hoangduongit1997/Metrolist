@@ -60,6 +60,7 @@ import com.metrolist.music.R
 import com.metrolist.music.constants.AudioNormalizationKey
 import com.metrolist.music.constants.AudioQualityKey
 import com.metrolist.music.constants.AutoLoadMoreKey
+import com.metrolist.music.constants.AutoDownloadLyricsKey
 import com.metrolist.music.constants.AutoSkipNextOnErrorKey
 import com.metrolist.music.constants.DiscordTokenKey
 import com.metrolist.music.constants.EnableDiscordRPCKey
@@ -121,6 +122,7 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -629,12 +631,56 @@ class MusicService :
         }
     }
 
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        if (intent?.action == null) {
+            return super.onStartCommand(intent, flags, startId)
+        }
+        
+        when (intent.action) {
+            ACTION_DOWNLOAD_LYRICS -> {
+                val songId = intent.getStringExtra(EXTRA_SONG_ID)
+                if (songId != null) {
+                    scope.launch {
+                        downloadLyricsForSong(songId)
+                    }
+                }
+            }
+        }
+        
+        return super.onStartCommand(intent, flags, startId)
+    }
+
     fun toggleLike() {
-         database.query {
-             currentSong.value?.let {
-                 val song = it.song.toggleLike()
-                 update(song)
-                 syncUtils.likeSong(song)
+        database.query {
+            currentSong.value?.let {
+                val song = it.song.toggleLike()
+                update(song)
+                syncUtils.likeSong(song)
+
+                // Download lyrics if auto-download lyrics is enabled
+                if (dataStore.get(AutoDownloadLyricsKey, false)) {
+                    scope.launch {
+                        downloadLyricsForSong(song.id)
+                    }
+                }
+             }
+         }
+     }
+
+    /**
+      * Downloads lyrics for a specific song
+      */
+     suspend fun downloadLyricsForSong(songId: String) {
+         val mediaMetadata = database.song(songId).firstOrNull()?.toMediaMetadata() ?: return
+         if (database.lyrics(songId).firstOrNull() == null) {
+             val lyrics = lyricsHelper.getLyrics(mediaMetadata)
+             database.query {
+                 upsert(
+                     LyricsEntity(
+                         id = songId,
+                         lyrics = lyrics,
+                     ),
+                 )
              }
          }
      }
@@ -982,5 +1028,8 @@ class MusicService :
         const val CHUNK_LENGTH = 512 * 1024L
         const val PERSISTENT_QUEUE_FILE = "persistent_queue.data"
         const val PERSISTENT_AUTOMIX_FILE = "persistent_automix.data"
+        // Constants for lyrics download action
+        const val ACTION_DOWNLOAD_LYRICS = "com.metrolist.music.action.DOWNLOAD_LYRICS"
+        const val EXTRA_SONG_ID = "com.metrolist.music.extra.SONG_ID"
     }
 }
