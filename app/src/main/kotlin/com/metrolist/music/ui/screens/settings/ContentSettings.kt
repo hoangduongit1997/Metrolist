@@ -67,6 +67,7 @@ fun ContentSettings(
         )
     val (lengthTop, onLengthTopChange) = rememberPreference(key = TopSize, defaultValue = "50")
     val (quickPicks, onQuickPicksChange) = rememberEnumPreference(key = QuickPicksKey, defaultValue = QuickPicks.QUICK_PICKS)
+    val (autoDownloadLyrics, onAutoDownloadLyricsChange) = rememberPreference(key = AutoDownloadLyricsKey, defaultValue = false)
 
     Column(
         Modifier
@@ -176,6 +177,13 @@ fun ContentSettings(
         }
 
         PreferenceGroupTitle(title = stringResource(R.string.lyrics))
+        SwitchPreference(
+            title = { Text(stringResource(R.string.auto_download_lyrics)) },
+            description = stringResource(R.string.auto_download_lyrics_desc),
+            icon = { Icon(painterResource(R.drawable.lyrics), null) },
+            checked = autoDownloadLyrics,
+            onCheckedChange = onAutoDownloadLyricsChange
+        )
         SwitchPreference(
             title = { Text(stringResource(R.string.enable_lrclib)) },
             icon = { Icon(painterResource(R.drawable.lyrics), null) },
