@@ -381,6 +381,7 @@ fun SelectionSongMenu(
                                 val s = song.song.toggleLike()
                                 update(s)
                                 syncUtils.likeSong(s)
+                                downloadUtil.autoDownloadIfLiked(likedSong)
                             }
                         }
                     }
