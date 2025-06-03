@@ -12,6 +12,7 @@ import com.metrolist.music.db.entities.PlaylistEntity
 import com.metrolist.music.db.entities.PlaylistSongMap
 import com.metrolist.music.db.entities.SongEntity
 import com.metrolist.music.models.toMediaMetadata
+import com.metrolist.music.playback.DownloadUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
@@ -27,6 +28,7 @@ import javax.inject.Singleton
 @Singleton
 class SyncUtils @Inject constructor(
     private val database: MusicDatabase,
+    private val downloadUtil: DownloadUtil
 ) {
     private val syncScope = CoroutineScope(Dispatchers.IO)
 
@@ -56,6 +58,8 @@ class SyncUtils @Inject constructor(
                         database.update(dbSong.song.copy(liked = true, likedDate = timestamp))
                     }
                 }
+                val songs = database.likedSongsNotDownloaded().first().map { it.song }
+                downloadUtil.autoDownloadIfLiked(songs)
             }
         }
     }
