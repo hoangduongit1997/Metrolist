@@ -862,6 +862,9 @@ interface DatabaseDao {
         }
     }
 
+    @Query("SELECT * FROM song WHERE liked AND dateDownload IS NULL")
+    fun likedSongsNotDownloaded(): Flow<List<Song>>
+
     @Transaction
     @Query("SELECT * FROM song WHERE title LIKE '%' || :query || '%' AND inLibrary IS NOT NULL LIMIT :previewSize")
     fun searchSongs(
