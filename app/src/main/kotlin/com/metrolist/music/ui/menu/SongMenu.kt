@@ -34,6 +34,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -104,6 +105,7 @@ fun SongMenu(
 ) {
     val context = LocalContext.current
     val database = LocalDatabase.current
+    val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val songState = database.song(originalSong.id).collectAsState(initial = originalSong)
     val song = songState.value ?: originalSong
@@ -228,6 +230,10 @@ fun SongMenu(
 
     var showErrorPlaylistAddDialog by rememberSaveable {
         mutableStateOf(false)
+    }
+
+    LaunchedEffect(song.song.liked) {
+        downloadUtil.autoDownloadIfLiked(song.song)
     }
 
     AddToPlaylistDialog(
