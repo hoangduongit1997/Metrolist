@@ -42,6 +42,12 @@ enum class AudioQuality {
     LOW,
 }
 
+enum class Autodownload {
+    OFF,
+    ON,
+    WIFI_ONLY
+}
+
 val PersistentQueueKey = booleanPreferencesKey("persistentQueue")
 val SkipSilenceKey = booleanPreferencesKey("skipSilence")
 val AudioNormalizationKey = booleanPreferencesKey("audioNormalization")
