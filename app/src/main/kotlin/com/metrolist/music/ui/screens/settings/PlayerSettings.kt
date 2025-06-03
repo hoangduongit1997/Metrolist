@@ -73,7 +73,7 @@ fun PlayerSettings(
     )
     val (likedAutoDownload, onLikedAutoDownload) = rememberEnumPreference(
         LikedAutoDownloadKey,
-        LikedAutodownloadMode.OFF
+        defaultValue = LikedAutodownloadMode.OFF
     )
     val (persistentQueue, onPersistentQueueChange) = rememberPreference(
         PersistentQueueKey,
@@ -142,16 +142,15 @@ fun PlayerSettings(
         EnumListPreference(
             title = { Text(stringResource(R.string.auto_download_on_like)) },
             icon = { Icon(painterResource(R.drawable.download), null) },
-            values = listOf(LikedAutodownloadMode.OFF, LikedAutodownloadMode.ON, LikedAutodownloadMode.WIFI_ONLY),
             selectedValue = likedAutoDownload,
+            onValueSelected = onLikedAutoDownload,
             valueText = {
                 when (it){
                     LikedAutodownloadMode.OFF -> stringResource(R.string.state_off)
                     LikedAutodownloadMode.ON -> stringResource(R.string.state_on)
                     LikedAutodownloadMode.WIFI_ONLY -> stringResource(R.string.wifi_only)
                 }
-            },
-            onValueSelected = onLikedAutoDownload
+            }
         )
 
         SliderPreference(
