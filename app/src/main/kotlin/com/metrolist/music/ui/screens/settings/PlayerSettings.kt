@@ -1,5 +1,6 @@
 package com.metrolist.music.ui.screens.settings
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,7 +41,8 @@ import com.metrolist.music.R
 import com.metrolist.music.constants.AudioNormalizationKey
 import com.metrolist.music.constants.AudioQuality
 import com.metrolist.music.constants.AudioQualityKey
-import com.metrolist.music.constants.AutoDownloadOnLikeKey
+import com.metrolist.music.constants.LikedAutoDownloadKey
+import com.metrolist.music.constants.LikedAutodownloadMode
 import com.metrolist.music.constants.AutoLoadMoreKey
 import com.metrolist.music.constants.AutoSkipNextOnErrorKey
 import com.metrolist.music.constants.PersistentQueueKey
@@ -58,6 +60,7 @@ import com.metrolist.music.utils.rememberEnumPreference
 import com.metrolist.music.utils.rememberPreference
 import kotlin.math.roundToInt
 
+@SuppressLint("PrivateResource")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlayerSettings(
@@ -67,6 +70,10 @@ fun PlayerSettings(
     val (audioQuality, onAudioQualityChange) = rememberEnumPreference(
         AudioQualityKey,
         defaultValue = AudioQuality.AUTO
+    )
+    val (likedAutoDownload, onLikedAutoDownload) = rememberEnumPreference(
+        LikedAutoDownloadKey,
+        LikedAutodownloadMode.OFF
     )
     val (persistentQueue, onPersistentQueueChange) = rememberPreference(
         PersistentQueueKey,
@@ -83,10 +90,6 @@ fun PlayerSettings(
     val (autoLoadMore, onAutoLoadMoreChange) = rememberPreference(
         AutoLoadMoreKey,
         defaultValue = true
-    )
-    val (autoDownloadOnLike, onAutoDownloadOnLikeChange) = rememberPreference(
-        AutoDownloadOnLikeKey,
-        defaultValue = false
     )
     val (similarContentEnabled, similarContentEnabledChange) = rememberPreference(
         key = SimilarContent,
@@ -136,6 +139,19 @@ fun PlayerSettings(
             }
         )
 
+        ListPreference(
+            title = { Text(stringResource(R.string.auto_download_on_like)) },
+            icon = { Icon(painterResource(R.drawable.download), null) },
+            values = listOf(LikedAutodownloadMode.OFF, LikedAutodownloadMode.ON, LikedAutodownloadMode.WIFI_ONLY),
+            selectedValue = likedAutoDownload,
+            valueText = { when (it){
+                LikedAutodownloadMode.OFF -> stringResource(R.string.state_off)
+                LikedAutodownloadMode.ON -> stringResource(R.string.state_on)
+                LikedAutodownloadMode.WIFI_ONLY -> stringResource(R.string.wifi_only)
+            } },
+            onValueSelected = onLikedAutoDownload
+        )
+
         SliderPreference(
             title = { Text(stringResource(R.string.history_duration)) },
             icon = { Icon(painterResource(R.drawable.history), null) },
@@ -175,14 +191,6 @@ fun PlayerSettings(
             icon = { Icon(painterResource(R.drawable.playlist_add), null) },
             checked = autoLoadMore,
             onCheckedChange = onAutoLoadMoreChange
-        )
-
-        SwitchPreference(
-            title = { Text(stringResource(R.string.auto_download_on_like)) },
-            description = stringResource(R.string.auto_download_on_like_desc),
-            icon = { Icon(painterResource(R.drawable.download), null) },
-            checked = autoDownloadOnLike,
-            onCheckedChange = onAutoDownloadOnLikeChange
         )
 
         SwitchPreference(
