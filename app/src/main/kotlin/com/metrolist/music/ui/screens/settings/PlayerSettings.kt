@@ -71,7 +71,7 @@ fun PlayerSettings(
         AudioQualityKey,
         defaultValue = AudioQuality.AUTO
     )
-    val (likedAutoDownload, onLikedAutoDownload) = rememberEnumPreference(
+    val (likedAutoDownloadKey, onLikedAutoDownload) = rememberEnumPreference(
         LikedAutoDownloadKey,
         defaultValue = LikedAutodownloadMode.OFF
     )
@@ -142,7 +142,7 @@ fun PlayerSettings(
         EnumListPreference(
             title = { Text(stringResource(R.string.auto_download_on_like)) },
             icon = { Icon(painterResource(R.drawable.download), null) },
-            selectedValue = likedAutoDownload,
+            selectedValue = likedAutoDownloadKey,
             onValueSelected = onLikedAutoDownload,
             valueText = {
                 when (it){
