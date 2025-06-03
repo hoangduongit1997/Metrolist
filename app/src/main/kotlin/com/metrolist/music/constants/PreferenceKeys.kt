@@ -42,7 +42,7 @@ enum class AudioQuality {
     LOW,
 }
 
-enum class Autodownload {
+enum class LikedAutodownloadMode {
     OFF,
     ON,
     WIFI_ONLY
@@ -52,7 +52,7 @@ val PersistentQueueKey = booleanPreferencesKey("persistentQueue")
 val SkipSilenceKey = booleanPreferencesKey("skipSilence")
 val AudioNormalizationKey = booleanPreferencesKey("audioNormalization")
 val AutoLoadMoreKey = booleanPreferencesKey("autoLoadMore")
-val AutoDownloadOnLikeKey = booleanPreferencesKey("autoDownloadOnLike")
+val LikedAutoDownloadKey = stringPreferencesKey("likedAutoDownloadKey")
 val SimilarContent = booleanPreferencesKey("similarContent")
 val AutoSkipNextOnErrorKey = booleanPreferencesKey("autoSkipNextOnError")
 val StopMusicOnTaskClearKey = booleanPreferencesKey("stopMusicOnTaskClear")
