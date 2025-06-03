@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.ListItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -87,6 +88,7 @@ fun YouTubeSongMenu(
 ) {
     val context = LocalContext.current
     val database = LocalDatabase.current
+    val downloadUtil = LocalDownloadUtil.current
     val playerConnection = LocalPlayerConnection.current ?: return
     val librarySong by database.song(song.id).collectAsState(initial = null)
     val download by LocalDownloadUtil.current.getDownload(song.id).collectAsState(initial = null)
@@ -102,7 +104,13 @@ fun YouTubeSongMenu(
 
     var showChoosePlaylistDialog by rememberSaveable {  
         mutableStateOf(false)  
-    }  
+    }
+
+    LaunchedEffect(librarySong?.song?.liked) {
+        librarySong?.let {
+            downloadUtil.autoDownloadIfLiked(it.song)
+        }
+    }
 
     AddToPlaylistDialog(  
         isVisible = showChoosePlaylistDialog,  
